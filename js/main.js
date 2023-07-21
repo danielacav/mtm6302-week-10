@@ -30,8 +30,8 @@ const cats = [
     img: "images/kitten5.jpeg"
   },
   {
-    name: "Kot",
-    bio: "Kot is a Polish word.",
+    name: "Gatto",
+    bio: "Gatto is an italian word.",
     thumb: "images/kitten6-thumb.jpeg",
     img: "images/kitten6.jpeg"
   },
@@ -62,8 +62,8 @@ for (const cat of cats) {
         <div class="card-body">
           <h5 class="card-title">${cat.name}</h5>
           <p class="card-text">${cat.bio}</p>
-          <a href="#" class="btn btn-light like" data-catname="${cat.name}" data-catbio="${cat.bio}" data-catthumb="${cat.thumb}" 
-          data-catfullimg="${cat.img}">Like</a>
+          <!--Data must be written in lowercase -->
+          <a href="#" class="btn btn-light like" data-catname="${cat.name}" data-catbio="${cat.bio}" data-catthumb="${cat.thumb}" data-catfullimg="${cat.img}"> Like </a>
         </div>
       </div>
     </div><!-- col ends -->`
@@ -99,3 +99,90 @@ function openModal () {
 
 
 // ********************************Week 11
+//To make the buttons funcitonal and use localStorage
+// 1. Add event listener to the button "like"
+//The gfunciton attached to the event listener allows to:
+  //1.1 Update the button style so it turns red
+  //1.2 Find the cat info
+  //1.3 Save that cat to fav
+
+  //savedCats is defined from now, to be able to use it many times
+  let savedCats = localStorage.getItem("mycats") //what's inside the parenthesis assigns the name to it 
+  console.log(savedCats)
+
+  //If the saved cats are null then !savedCats will be true
+  if (!savedCats){
+    savedCats = []
+  } else {
+    savedCats = JSON.parse(savedCats)
+  }
+
+
+//Gets all buttons
+const likeButtons = document.querySelectorAll(".like")
+//First make sure there are buttons.
+if(likeButtons.length > 0) {
+  for (const likeButton of likeButtons) {
+    likeButton.addEventListener("click", likedCat)
+    //We're gonna loop over the savedCats array and chekc if any catName matches with this button catName
+    for (savedCat of savedCats) {
+      if(savedCat.name == likeButton.dataset.catname) {
+        //Update button style
+        likeButton.this.classList.add("btn-danger")
+        likeButton.this.classList.remove("btn-light")
+        likeButton.textContent = "Liked"
+      }
+    }
+  }
+}
+
+//defining the function likedCat
+function likedCat(e) {
+  //Preventing the page to scroll up looking for href #, when clicking the button
+  e.preventDefault()
+  //get all info from the card. "This" refers to the element that's calling the function
+  const catName = this.dataset.catname
+  const catBio = this.dataset.catbio
+  const catThumb = this.dataset.catthumb
+  const catImg = this.dataset.catfullimg
+  //Now create an object with all that info
+  const catInfo = {name: catName, bio: catBio, thumb: catThumb, img: catImg}
+  //save the cat info 
+  console.log(catInfo)
+
+//Before adding the cat to local storage is important to check the cat is not already in local Storage
+//1. Get cats from local storage
+//2. if (it's not already there) add it to the localStorage
+//3. if (is there already) do nothing 
+ 
+  const catExists = findCat(catName)
+  console.log(catExists)
+
+  //if the cat name exists, it is not equal to null
+  if (catExists !== null) {
+    alert("This cat is already liked")
+  }  else {
+    //push the cat object to savedCats array
+    savedCats.push(catInfo)
+    //Stringify the savedCats array and add it to localStorage mycats
+    localStorage.setItem("mycats", JSON.stringify(savedCats))
+
+    //update Button style
+    this.classList.remove("btn-light")
+    this.classList.add("btn-danger")
+    this.textContent = "Liked"
+  }
+
+}
+  function findCat(catName) {
+    for (const savedCat of savedCats) {
+      if(savedCat.name == catName){
+        return savedCats.indexOf(savedCat) //Look for indexOf function
+      }
+    }
+    return null
+  }
+
+
+
+
